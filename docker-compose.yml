@@ -1,0 +1,12 @@
+services:
+  certchecker:
+    build: .
+    container_name: certificate_checker
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - TEAMS_WEBHOOK_URL=${TEAMS_WEBHOOK_URL:-https://groupestahl.webhook.office.com/webhookb2/3481d048-319c-403a-8c65-d3a17704d09f@eb388d0d-cebb-492e-9df5-7a6119d5fdbd/IncomingWebhook/96fbfa7d3fb74f7e90a8cbc59364579f/97677dcf-d442-479b-a453-6d8b89d8aa39/V2pWUkdpG2iaAwK8nelDLUO4NRag4R0vvlgO2edCx_Z0A1}
+      - TZ=UTC
+    volumes:
+      - ./output:/app/output

@@ -1,0 +1,192 @@
+{
+  "type": "AdaptiveCard",
+  "body": [
+    {
+      "type": "TextBlock",
+      "size": "Medium",
+      "weight": "Bolder",
+      "text": "🔒 {{ scan_type | default('Daily') }} Security Report"
+    },
+    {
+      "type": "TextBlock",
+      "text": "Generated on: {{ timestamp }}"
+    },
+    {
+      "type": "FactSet",
+      "facts": [
+        {
+          "title": "Scan Type:",
+          "value": "{{ scan_type | default('Daily') }}"
+        },
+        {
+          "title": "Domains Scanned:",
+          "value": "{{ total_domains }}"
+        },
+        {
+          "title": "New Certificates:",
+          "value": "{{ total_new_certs }}"
+        },
+        {
+          "title": "Takeover Vulnerabilities:",
+          "value": "{{ takeover_vulnerabilities|length }} {% if takeover_vulnerabilities %}🚨{% endif %}"
+        }
+      ]
+    }
+    {% if takeover_vulnerabilities %}
+    ,{
+      "type": "Container",
+      "style": "attention",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "🚨 **SUBDOMAIN TAKEOVER VULNERABILITIES**",
+          "weight": "Bolder",
+          "color": "Attention",
+          "wrap": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "Dangling CNAMEs detected - immediate action required!",
+          "wrap": true,
+          "color": "Attention"
+        }
+        {% for vuln in takeover_vulnerabilities %}
+        ,{
+          "type": "Container",
+          "style": "warning",
+          "items": [
+            {
+              "type": "FactSet",
+              "facts": [
+                {
+                  "title": "Subdomain:",
+                  "value": "{{ vuln.subdomain }}"
+                },
+                {
+                  "title": "CNAME Target:",
+                  "value": "{{ vuln.cname_target }}"
+                },
+                {
+                  "title": "Provider:",
+                  "value": "{{ vuln.provider }}"
+                },
+                {
+                  "title": "Status:",
+                  "value": "{{ vuln.status }}"
+                }
+              ]
+            }
+          ]
+        }
+        {% endfor %}
+      ]
+    }
+    {% endif %}
+    {% if total_new_certs > 0 %}
+    ,{
+      "type": "Container",
+      "style": "emphasis",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "🆕 **New Certificates (Last 24 Hours)**",
+          "weight": "Bolder",
+          "wrap": true
+        }
+        {% for domain_data in domain_data if domain_data.certificates %}
+        ,{
+          "type": "Container",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "**Domain: {{ domain_data.domain }}**",
+              "weight": "Bolder",
+              "wrap": true
+            },
+            {
+              "type": "ColumnSet",
+              "columns": [
+                {
+                  "type": "Column",
+                  "width": "stretch",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "**Certificate Domain**",
+                      "weight": "Bolder"
+                    }
+                    {% for cert in domain_data.certificates %}
+                    ,{
+                      "type": "TextBlock",
+                      "text": "{{ cert.domain }}",
+                      "wrap": true
+                    }
+                    {% endfor %}
+                  ]
+                },
+                {
+                  "type": "Column",
+                  "width": "stretch",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "**Issuer**",
+                      "weight": "Bolder"
+                    }
+                    {% for cert in domain_data.certificates %}
+                    ,{
+                      "type": "TextBlock",
+                      "text": "{{ cert.issuer }}",
+                      "wrap": true
+                    }
+                    {% endfor %}
+                  ]
+                },
+                {
+                  "type": "Column",
+                  "width": "stretch",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "**Issued**",
+                      "weight": "Bolder"
+                    }
+                    {% for cert in domain_data.certificates %}
+                    ,{
+                      "type": "TextBlock",
+                      "text": "{{ cert.issued }}",
+                      "wrap": true
+                    }
+                    {% endfor %}
+                  ]
+                },
+                {
+                  "type": "Column",
+                  "width": "stretch",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "**ID**",
+                      "weight": "Bolder"
+                    }
+                    {% for cert in domain_data.certificates %}
+                    ,{
+                      "type": "TextBlock",
+                      "text": "{{ cert.id }}",
+                      "wrap": true
+                    }
+                    {% endfor %}
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+        {% endfor %}
+      ]
+    }
+    {% endif %}
+  ],
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "version": "1.2"
+}
