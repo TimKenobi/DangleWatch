@@ -1,0 +1,7 @@
+# DangleWatch - Example Domains File (Weekly Scans)
+# Add your full domain list for comprehensive weekly scans
+# Lines starting with # are treated as comments
+
+example.com
+example.org
+yourdomain.com

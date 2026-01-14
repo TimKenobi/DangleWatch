@@ -1,0 +1,7 @@
+# DangleWatch - Example Live Domains File (Daily Scans)
+# Add your critical/high-priority domains for daily monitoring
+# Lines starting with # are treated as comments
+
+www.example.com
+api.example.com
+portal.yourdomain.com

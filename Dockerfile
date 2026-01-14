@@ -26,4 +26,4 @@ ENV TZ=UTC
 # Run the application in daemon mode with daily and weekly schedules
 # Daily scans: livedomains.txt (53 domains) at 09:00 UTC
 # Weekly scans: domains.txt (586 domains) on Sunday at 06:00 UTC
-CMD ["python", "certchecker.py", "--daemon", "--domain-file", "/app/domains.txt", "--live-domain-file", "/app/livedomains.txt", "--daily-time", "09:00", "--weekly-day", "sunday", "--weekly-time", "06:00"]
+CMD ["python", "certchecker.py", "--daemon", "--domain-file", "/app/domains.txt", "--live-domain-file", "/app/livedomains.txt", "--daily-time", "09:00", "--weekly-day", "sunday", "--weekly-time", "06:00", "--skip-initial-daily"]

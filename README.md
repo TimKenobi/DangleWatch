@@ -1,103 +1,197 @@
-# Certificate Checker - Docker Deployment
+# DangleWatch 🔐
 
-Real-time SSL certificate monitoring and subdomain takeover detection with Rapid7 InsightIDR integration.
+Real-time SSL certificate monitoring and subdomain takeover detection with Microsoft Teams notifications and optional Rapid7 InsightIDR integration.
 
 ## Features
 
-### Certificate Monitoring
-- **Daily automated scans** at 09:00 UTC (configurable)
-- **Weekly deep scans** on Sundays at 02:00 UTC
-- **Filters out GoDaddy certificates** - only reports non-GoDaddy certs
-- **Teams notifications** when new certificates are found
+### 🔍 Certificate Monitoring
+- **Daily automated scans** for new SSL certificates
+- **Weekly deep scans** for comprehensive analysis
+- **Certificate transparency log monitoring** via crt.sh
+- **Configurable certificate issuer filtering** (e.g., exclude GoDaddy certs)
+- **Microsoft Teams notifications** for new certificate discoveries
 
-### Subdomain Takeover Detection
+### 🚨 Subdomain Takeover Detection
 - **48+ cloud provider patterns** including:
   - AWS (S3, CloudFront, Elastic Beanstalk, ELB, API Gateway)
   - Azure (App Service, Blob Storage, CDN, Traffic Manager, Front Door)
   - Platform services (Heroku, GitHub Pages, Netlify, Vercel, Shopify, Zendesk)
-  - And many more...
+  - Modern platforms (Cloudflare Pages/Workers, Fly.io, Render)
 - **Dangling CNAME detection** - identifies CNAMEs pointing to non-existent resources
 - **Automatic vulnerability classification** (CRITICAL/HIGH/MEDIUM/LOW)
 
-### Rapid7 InsightIDR Integration
+### 🔗 Rapid7 InsightIDR Integration (Optional)
 - **Automatic investigation creation** for detected vulnerabilities
-- **Detailed comments** with full vulnerability context
+- **Detailed comments** with full vulnerability context and remediation steps
+- **Duplicate prevention** via investigation tracking
 - **Priority: HIGH** for all subdomain takeover findings
-- **Duplicate prevention** via investigation tracker
+
+### 📊 Health Monitoring
+- **Scan health tracking** - monitors for consecutive failures
+- **Automatic alerts** when scans fail for extended periods
+- **Checkpoint/resume** for long-running weekly scans
 
 ## Quick Start
 
-### Build and run the container:
+### 1. Clone the repository
 ```bash
-cd /opt/certificate_checker
-sudo docker compose up -d
+git clone https://github.com/TimKenobi/DangleWatch.git
+cd DangleWatch
 ```
 
-### View logs:
+### 2. Create your configuration
 ```bash
-sudo docker compose logs -f
+# Copy the example environment file
+cp .env.example .env
+
+# Edit with your settings
+nano .env
 ```
 
-### Stop the container:
+### 3. Add your domains
 ```bash
-sudo docker compose down
+# Edit domains.txt with your full domain list (for weekly scans)
+nano domains.txt
+
+# Edit livedomains.txt with critical domains (for daily scans)
+nano livedomains.txt
 ```
 
-### Rebuild after code changes:
+### 4. Run with Docker
 ```bash
-sudo docker compose down
-sudo docker compose build --no-cache
-sudo docker compose up -d
+# Build and start the container
+docker compose up -d
+
+# View logs
+docker compose logs -f
+
+# Stop
+docker compose down
 ```
 
 ## Configuration
 
-### Change scan time:
-Edit `docker-compose.yml` and modify the `--scan-time` parameter (format: HH:MM in UTC):
-```yaml
-command: ["python", "certchecker.py", "--daemon", "--scan-time", "14:00"]
-```
+### Environment Variables
 
-### Update domains:
-Edit `domains.txt` and restart the container:
+Create a `.env` file with the following variables:
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `TEAMS_WEBHOOK_URL` | Microsoft Teams webhook URL for notifications | No |
+| `RAPID7_API_KEY` | Rapid7 InsightIDR API key | No |
+| `RAPID7_REGION` | Rapid7 region (us, us2, us3, eu, au, ca) | No (default: us3) |
+| `OUTPUT_DIR` | Output directory for reports | No (default: ./output) |
+| `TZ` | Timezone | No (default: UTC) |
+
+### Scan Schedule
+
+Modify the schedule in the Dockerfile CMD or via command line:
+
 ```bash
-sudo docker compose restart
+# Daily scans at 09:00 UTC
+# Weekly scans on Sunday at 06:00 UTC
+python certchecker.py --daemon \
+  --daily-time "09:00" \
+  --weekly-day "sunday" \
+  --weekly-time "06:00" \
+  --domain-file domains.txt \
+  --live-domain-file livedomains.txt
 ```
 
-### Rapid7 API Configuration:
-The API key and region are configured in `certchecker.py`:
-```python
-RAPID7_API_KEY = "your-api-key"
-RAPID7_REGION = "us3"  # or us, us2, eu, au, ca
-```
+### Command Line Options
 
-### Teams Webhook:
-Set the environment variable in `docker-compose.yml`:
-```yaml
-environment:
-  - TEAMS_WEBHOOK_URL=your_webhook_url_here
-```
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--domain-file` | Full domain list for weekly scans | `/app/domains.txt` |
+| `--live-domain-file` | Critical domains for daily scans | `/app/livedomains.txt` |
+| `--daemon` | Run as daemon with scheduled scans | false |
+| `--daily-time` | Time for daily scan (HH:MM, UTC) | `09:00` |
+| `--weekly-day` | Day for weekly scan | `sunday` |
+| `--weekly-time` | Time for weekly scan (HH:MM, UTC) | `06:00` |
+| `--scan-type` | Force specific scan type (daily/weekly) | auto |
+| `--skip-initial-daily` | Skip daily scan on startup | false |
 
-## Manual Scan
+## Manual Scans
 
-Run a manual scan without waiting for schedule:
 ```bash
-# Full scan
-sudo docker exec certificate_checker python certchecker.py
+# Run daily scan
+docker exec danglewatch python certchecker.py --scan-type daily
 
-# Daily scan only
-sudo docker exec certificate_checker python certchecker.py --scan-type daily
+# Run weekly scan
+docker exec danglewatch python certchecker.py --scan-type weekly
 
-# Weekly scan only
-sudo docker exec certificate_checker python certchecker.py --scan-type weekly
+# Run with default behavior
+docker exec danglewatch python certchecker.py
 ```
 
 ## Output Files
 
-All reports are saved to the `output/` directory:
-- `cert_report_*.txt` - Text reports
-- `cert_report_*.csv` - CSV reports for Excel
+Reports are saved to the `output/` directory:
+- `cert_report_daily_*.csv` - Daily scan CSV reports
+- `cert_report_daily_*.txt` - Daily scan text reports
+- `cert_report_weekly_*.csv` - Weekly scan CSV reports
+- `cert_report_weekly_*.txt` - Weekly scan text reports
 - `*_certs_prev.txt` - Previous scan state for change detection
+- `scan_health.json` - Health monitoring status
+- `investigation_tracker.json` - Rapid7 investigation tracking (if enabled)
+- `log.txt` - Application logs
+
+## Domain File Format
+
+### domains.txt (Full list for weekly scans)
+```
+example.com
+example.org
+mycompany.com
+```
+
+### livedomains.txt (Critical domains for daily scans)
+```
+www.example.com
+api.example.com
+portal.mycompany.com
+```
+
+Lines starting with `#` are treated as comments.
+
+## Microsoft Teams Integration
+
+1. Create an Incoming Webhook in your Teams channel
+2. Copy the webhook URL
+3. Set `TEAMS_WEBHOOK_URL` in your `.env` file
+
+Notifications include:
+- New certificate discoveries (non-GoDaddy)
+- Subdomain takeover vulnerabilities
+- Investigation creation status (if Rapid7 enabled)
+
+## Rapid7 InsightIDR Integration
+
+1. Generate an API key in InsightIDR Platform Settings
+2. Set `RAPID7_API_KEY` in your `.env` file
+3. Set `RAPID7_REGION` to match your InsightIDR region
+
+When vulnerabilities are detected:
+- Investigations are automatically created in InsightIDR
+- Detailed comments explain the vulnerability and remediation steps
+- Duplicate investigations are prevented via local tracking
+
+## Security Recommendations
+
+When dangling CNAMEs are detected:
+
+1. **Verify**: Confirm the subdomain is no longer needed
+2. **Remove**: Delete the DNS record from your DNS provider
+3. **Or Reclaim**: If still needed, reclaim the cloud resource
+4. **Monitor**: Re-run DangleWatch to verify the fix
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 - `investigation_tracker.json` - Tracks created Rapid7 investigations
 - `log.txt` - Application logs
 
