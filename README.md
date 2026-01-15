@@ -161,7 +161,7 @@ Use this file to exclude subdomains from subdomain takeover detection that are k
 ```
 # False Positives - Subdomain Takeover Detection
 # Add one subdomain per line to exclude from vulnerability reports
-host.REMOVED.com
+host.yourcompany.com
 app.example.com
 staging.example.com
 ```
