@@ -253,3 +253,6 @@ The scanner prevents concurrent scans:
 ## Repository
 
 https://github.com/TimKenobi/DangleWatch
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Support-orange.svg)](https://coff.ee/timkenobi)
+
