@@ -27,3 +27,6 @@ test_domains.txt
 # Logs
 *.log
 log.txt
+
+# GitHub Actions/Agents (may contain internal references)
+.github/
