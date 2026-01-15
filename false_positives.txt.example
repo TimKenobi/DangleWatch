@@ -1,0 +1,12 @@
+# False Positives - Subdomain Takeover Detection
+# Add one subdomain per line to exclude from vulnerability reports
+# Lines starting with # are comments
+#
+# Use this file to exclude subdomains that appear vulnerable but are
+# known to be safe (e.g., intentional non-resolving CNAMEs, domains
+# in migration, third-party services with expected behavior).
+#
+# Example entries:
+# host.REMOVED.com
+# staging.example.com
+# legacy-app.example.com

@@ -154,6 +154,28 @@ portal.mycompany.com
 
 Lines starting with `#` are treated as comments.
 
+### false_positives.txt (Exclude known-safe subdomains)
+
+Use this file to exclude subdomains from subdomain takeover detection that are known false positives:
+
+```
+# False Positives - Subdomain Takeover Detection
+# Add one subdomain per line to exclude from vulnerability reports
+host.REMOVED.com
+kiosk.stahls.com
+one-stahl-mfg-staging.stahls.com
+```
+
+When a subdomain is listed in `false_positives.txt`:
+- It will be skipped during subdomain takeover checks
+- No Rapid7 investigations will be created for it
+- No Teams notifications will be sent for it
+
+This is useful for subdomains that appear vulnerable but are actually:
+- Intentionally configured with non-resolving CNAMEs
+- In the process of being migrated
+- Third-party services with expected behavior
+
 ## Microsoft Teams Integration
 
 1. Create an Incoming Webhook in your Teams channel
@@ -192,8 +214,6 @@ MIT License - see [LICENSE](LICENSE) for details.
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
-- `investigation_tracker.json` - Tracks created Rapid7 investigations
-- `log.txt` - Application logs
 
 ## Scan Lock Mechanism
 
@@ -226,7 +246,8 @@ The scanner prevents concurrent scans:
 ## Dependencies
 
 - Python 3.11
-- dnspython, requests, schedule
+- requests, jinja2, schedule, python-dateutil
+- dnsutils (for dig command)
 - Docker with compose
 
 ## Repository

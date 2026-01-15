@@ -14,6 +14,16 @@ livedomains.txt
 !domains.txt.example
 !livedomains.txt.example
 
+# Internal documentation (contains internal URLs/details)
+docs/INTERNAL_WIKI.md
+
+# False positives (organization-specific)
+false_positives.txt
+!false_positives.txt.example
+
+# Test files
+test_domains.txt
+
 # Logs
 *.log
 log.txt
