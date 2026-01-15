@@ -7,6 +7,6 @@
 # in migration, third-party services with expected behavior).
 #
 # Example entries:
-# host.REMOVED.com
+# host.yourcompany.com
 # staging.example.com
 # legacy-app.example.com
