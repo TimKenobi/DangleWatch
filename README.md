@@ -162,8 +162,8 @@ Use this file to exclude subdomains from subdomain takeover detection that are k
 # False Positives - Subdomain Takeover Detection
 # Add one subdomain per line to exclude from vulnerability reports
 host.REMOVED.com
-kiosk.stahls.com
-one-stahl-mfg-staging.stahls.com
+app.example.com
+staging.example.com
 ```
 
 When a subdomain is listed in `false_positives.txt`:
@@ -252,4 +252,4 @@ The scanner prevents concurrent scans:
 
 ## Repository
 
-https://gitea.stahlsitsec.local/bransont/certificate_checker
+https://github.com/TimKenobi/DangleWatch
